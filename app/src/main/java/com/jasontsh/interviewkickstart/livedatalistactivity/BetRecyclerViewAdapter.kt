@@ -7,6 +7,7 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
 import androidx.lifecycle.MutableLiveData
+import com.google.common.collect.ImmutableList
 
 import com.jasontsh.interviewkickstart.livedatalistactivity.BetContent.Bet
 import com.jasontsh.interviewkickstart.livedatalistactivity.databinding.FragmentBetBinding
@@ -15,7 +16,7 @@ import com.jasontsh.interviewkickstart.livedatalistactivity.databinding.Fragment
  * [RecyclerView.Adapter] that can display a [Bet].
  */
 class BetRecyclerViewAdapter(
-    private val values: List<MutableLiveData<Bet>>
+    private val values: MutableLiveData<ImmutableList<Bet>>
 ) : RecyclerView.Adapter<BetRecyclerViewAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -30,22 +31,23 @@ class BetRecyclerViewAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = checkNotNull(values[position].value)
+        val item = checkNotNull(values.value)[position]
         holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 holder.addBet.isClickable = true
                 item.bet = 1
-                values[position].value = Bet(item.name, 1)
+                values.value = ImmutableList.copyOf(checkNotNull(values.value))
             } else {
                 holder.addBet.isClickable = false
                 item.bet = 0
-                values[position].value = Bet(item.name, 0)
+                values.value = ImmutableList.copyOf(checkNotNull(values.value))
             }
             holder.totalBet.text = item.bet.toString()
         }
         holder.addBet.setOnClickListener {
             if (holder.checkBox.isChecked) {
-                values[position].value = Bet(item.name, ++item.bet)
+                item.bet++
+                values.value = ImmutableList.copyOf(checkNotNull(values.value))
                 holder.totalBet.text = item.bet.toString()
             }
         }
@@ -55,7 +57,7 @@ class BetRecyclerViewAdapter(
         holder.addBet.isClickable = holder.checkBox.isChecked
     }
 
-    override fun getItemCount(): Int = values.size
+    override fun getItemCount(): Int = checkNotNull(values.value).size
 
     inner class ViewHolder(binding: FragmentBetBinding) : RecyclerView.ViewHolder(binding.root) {
         val checkBox: CheckBox = binding.checkbox

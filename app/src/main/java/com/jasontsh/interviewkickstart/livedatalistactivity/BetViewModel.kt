@@ -2,9 +2,10 @@ package com.jasontsh.interviewkickstart.livedatalistactivity
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.common.collect.ImmutableList
 
 class BetViewModel : ViewModel() {
-    val betList: MutableList<MutableLiveData<BetContent.Bet>> by lazy {
+    val betList: MutableLiveData<ImmutableList<BetContent.Bet>> by lazy {
         BetContent.ITEMS
     }
 

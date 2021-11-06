@@ -11,6 +11,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import com.google.common.collect.ImmutableList
 import com.jasontsh.interviewkickstart.livedatalistactivity.BetContent.BLACKS
 import com.jasontsh.interviewkickstart.livedatalistactivity.BetContent.REDS
 import com.jasontsh.interviewkickstart.livedatalistactivity.BetContent.TOTAL_SLOTS
@@ -33,67 +34,58 @@ class ResultFragment : Fragment() {
         val model: BetViewModel by activityViewModels()
         rollButton.setOnClickListener {
             val roll = ceil(Math.random() * TOTAL_SLOTS).toInt()
-            val rollResult = getRollResult(roll, model.betList)
+            val rollResult = getRollResult(roll, checkNotNull(model.betList.value))
             model.totalMoney.value = checkNotNull(model.totalMoney.value) + rollResult.result
             displayNewRoll(resultTextView, rollResult)
             moneyLeft.text = "Total money left: " + checkNotNull(model.totalMoney.value).toString()
         }
         moneyLeft.text = "Total money left: $STARTING_MONEY"
         val betCount: TextView= view.findViewById(R.id.bet_count)
-        model.betList.forEach { addObserver(it, model.betList, betCount) }
+        model.betList.observe(
+            this,
+             { list -> betCount.text = "Bet count = " + list.sumOf { it.bet } })
         return view
     }
 
-    private fun addObserver(
-        bet: MutableLiveData<BetContent.Bet>,
-        bets: List<MutableLiveData<BetContent.Bet>>,
-        betCount: TextView
-    ) {
-        bet.observe(
-            this,
-            Observer { betCount.text = "Bet count = " + bets.sumOf { checkNotNull(it.value).bet } })
-    }
-
-    private fun getRollResult(roll: Int, bets: List<MutableLiveData<BetContent.Bet>>): RollResult {
+    private fun getRollResult(roll: Int, bets: ImmutableList<BetContent.Bet>): RollResult {
         var result = 0
         for (bet in bets) {
-            val betValue = checkNotNull(bet.value)
             result +=
-                when (betValue.name) {
+                when (bet.name) {
                     "Red" -> if (REDS.contains(roll)) {
-                        betValue.bet * 2
+                        bet.bet * 2
                     } else {
-                        -betValue.bet
+                        -bet.bet
                     }
                     "Black" -> if (BLACKS.contains(roll)) {
-                        betValue.bet * 2
+                        bet.bet * 2
                     } else {
-                        -betValue.bet
+                        -bet.bet
                     }
                     "Even" -> if (roll % 2 == 0) {
-                        betValue.bet * 2
+                        bet.bet * 2
                     } else {
-                        -betValue.bet
+                        -bet.bet
                     }
                     "Odd" -> if (roll % 2 == 1) {
-                        betValue.bet * 2
+                        bet.bet * 2
                     } else {
-                        -betValue.bet
+                        -bet.bet
                     }
                     "0" -> if (roll == 37) {
-                        betValue.bet * 36
+                        bet.bet * 36
                     } else {
-                        -betValue.bet
+                        -bet.bet
                     }
                     "00" -> if (roll == 38) {
-                        betValue.bet * 36
+                        bet.bet * 36
                     } else {
-                        -betValue.bet
+                        -bet.bet
                     }
-                    else -> if (betValue.name == roll.toString()) {
-                        betValue.bet * 36
+                    else -> if (bet.name == roll.toString()) {
+                        bet.bet * 36
                     } else {
-                        -betValue.bet
+                        -bet.bet
                     }
                 }
         }
