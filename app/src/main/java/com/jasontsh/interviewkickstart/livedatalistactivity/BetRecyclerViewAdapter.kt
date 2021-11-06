@@ -13,10 +13,9 @@ import com.jasontsh.interviewkickstart.livedatalistactivity.databinding.Fragment
 
 /**
  * [RecyclerView.Adapter] that can display a [Bet].
- * TODO: Replace the implementation with code for your data type.
  */
 class BetRecyclerViewAdapter(
-    private val values: List<Bet>
+    private val values: List<MutableLiveData<Bet>>
 ) : RecyclerView.Adapter<BetRecyclerViewAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -31,20 +30,22 @@ class BetRecyclerViewAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = values[position]
+        val item = checkNotNull(values[position].value)
         holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 holder.addBet.isClickable = true
                 item.bet = 1
+                values[position].value = Bet(item.name, 1)
             } else {
                 holder.addBet.isClickable = false
                 item.bet = 0
+                values[position].value = Bet(item.name, 0)
             }
             holder.totalBet.text = item.bet.toString()
         }
         holder.addBet.setOnClickListener {
             if (holder.checkBox.isChecked) {
-                item.bet++
+                values[position].value = Bet(item.name, ++item.bet)
                 holder.totalBet.text = item.bet.toString()
             }
         }

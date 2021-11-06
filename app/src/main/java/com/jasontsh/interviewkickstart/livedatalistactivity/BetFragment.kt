@@ -24,7 +24,7 @@ class BetFragment : Fragment() {
         if (view is RecyclerView) {
             with(view) {
                 layoutManager = LinearLayoutManager(context)
-                adapter = BetRecyclerViewAdapter(checkNotNull(model.betList.value))
+                adapter = BetRecyclerViewAdapter(model.betList)
             }
         }
         return view

@@ -1,5 +1,6 @@
 package com.jasontsh.interviewkickstart.livedatalistactivity
 
+import androidx.lifecycle.MutableLiveData
 import java.util.ArrayList
 import java.util.HashMap
 
@@ -8,7 +9,7 @@ import java.util.HashMap
  */
 object BetContent {
 
-    val ITEMS: MutableList<Bet> = ArrayList()
+    val ITEMS: MutableList<MutableLiveData<Bet>> = ArrayList()
 
     val REDS = intArrayOf(32, 19, 21, 25, 34, 27, 36, 30, 23, 5, 16, 1, 14, 9, 18, 7, 12, 3)
 
@@ -31,7 +32,7 @@ object BetContent {
     }
 
     private fun addItem(item: Bet) {
-        ITEMS.add(item)
+        ITEMS.add(MutableLiveData(item))
     }
 
     private fun createBet(position: Int): Bet {

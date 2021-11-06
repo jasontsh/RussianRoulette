@@ -9,10 +9,13 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.jasontsh.interviewkickstart.livedatalistactivity.BetContent.BLACKS
 import com.jasontsh.interviewkickstart.livedatalistactivity.BetContent.REDS
 import com.jasontsh.interviewkickstart.livedatalistactivity.BetContent.TOTAL_SLOTS
 import com.jasontsh.interviewkickstart.livedatalistactivity.BetViewModel.Companion.STARTING_MONEY
+import kotlin.collections.ArrayList
 import kotlin.math.ceil
 
 class ResultFragment : Fragment() {
@@ -27,57 +30,70 @@ class ResultFragment : Fragment() {
         val rollButton: Button = view.findViewById(R.id.roll_button)
         val moneyLeft: TextView = view.findViewById(R.id.money_left)
         val resultTextView: TextView = view.findViewById(R.id.result_textview)
+        val model: BetViewModel by activityViewModels()
         rollButton.setOnClickListener {
             val roll = ceil(Math.random() * TOTAL_SLOTS).toInt()
-            val model: BetViewModel by activityViewModels()
-            val rollResult = getRollResult(roll, checkNotNull(model.betList.value))
+            val rollResult = getRollResult(roll, model.betList)
             model.totalMoney.value = checkNotNull(model.totalMoney.value) + rollResult.result
             displayNewRoll(resultTextView, rollResult)
             moneyLeft.text = "Total money left: " + checkNotNull(model.totalMoney.value).toString()
         }
         moneyLeft.text = "Total money left: $STARTING_MONEY"
+        val betCount: TextView= view.findViewById(R.id.bet_count)
+        model.betList.forEach { addObserver(it, model.betList, betCount) }
         return view
     }
 
-    private fun getRollResult(roll: Int, bets: List<BetContent.Bet>): RollResult {
+    private fun addObserver(
+        bet: MutableLiveData<BetContent.Bet>,
+        bets: List<MutableLiveData<BetContent.Bet>>,
+        betCount: TextView
+    ) {
+        bet.observe(
+            this,
+            Observer { betCount.text = "Bet count = " + bets.sumOf { checkNotNull(it.value).bet } })
+    }
+
+    private fun getRollResult(roll: Int, bets: List<MutableLiveData<BetContent.Bet>>): RollResult {
         var result = 0
         for (bet in bets) {
+            val betValue = checkNotNull(bet.value)
             result +=
-                when (bet.name) {
+                when (betValue.name) {
                     "Red" -> if (REDS.contains(roll)) {
-                        bet.bet * 2
+                        betValue.bet * 2
                     } else {
-                        -bet.bet
+                        -betValue.bet
                     }
                     "Black" -> if (BLACKS.contains(roll)) {
-                        bet.bet * 2
+                        betValue.bet * 2
                     } else {
-                        -bet.bet
+                        -betValue.bet
                     }
                     "Even" -> if (roll % 2 == 0) {
-                        bet.bet * 2
+                        betValue.bet * 2
                     } else {
-                        -bet.bet
+                        -betValue.bet
                     }
                     "Odd" -> if (roll % 2 == 1) {
-                        bet.bet * 2
+                        betValue.bet * 2
                     } else {
-                        -bet.bet
+                        -betValue.bet
                     }
                     "0" -> if (roll == 37) {
-                        bet.bet * 36
+                        betValue.bet * 36
                     } else {
-                        -bet.bet
+                        -betValue.bet
                     }
                     "00" -> if (roll == 38) {
-                        bet.bet * 36
+                        betValue.bet * 36
                     } else {
-                        -bet.bet
+                        -betValue.bet
                     }
-                    else -> if (bet.name == roll.toString()) {
-                        bet.bet * 36
+                    else -> if (betValue.name == roll.toString()) {
+                        betValue.bet * 36
                     } else {
-                        -bet.bet
+                        -betValue.bet
                     }
                 }
         }
@@ -91,7 +107,13 @@ class ResultFragment : Fragment() {
         }
         val stringBuilder = StringBuilder()
         for (roll in rolls) {
-            stringBuilder.append(roll.roll).append(',')
+            stringBuilder.append(
+                when (roll.roll) {
+                    37 -> "0"
+                    38 -> "00"
+                    else -> roll.roll.toString()
+                }
+            ).append(',')
         }
         stringBuilder.deleteCharAt(stringBuilder.lastIndex)
         resultTextView.text = stringBuilder.toString()
