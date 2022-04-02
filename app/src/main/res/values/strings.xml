@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Russian Roulette</string>
+    <string name="app_name">Roulette</string>
     <string name="add_bet">Add bet</string>
     <string name="roll_button_text">Roll!</string>
     <string name="history_button_text">History</string>

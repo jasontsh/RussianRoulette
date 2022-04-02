@@ -53,37 +53,37 @@ class ResultFragment : Fragment() {
             result +=
                 when (bet.name) {
                     "Red" -> if (REDS.contains(roll)) {
-                        bet.bet * 2
+                        bet.bet
                     } else {
                         -bet.bet
                     }
                     "Black" -> if (BLACKS.contains(roll)) {
-                        bet.bet * 2
+                        bet.bet
                     } else {
                         -bet.bet
                     }
                     "Even" -> if (roll % 2 == 0) {
-                        bet.bet * 2
+                        bet.bet
                     } else {
                         -bet.bet
                     }
                     "Odd" -> if (roll % 2 == 1) {
-                        bet.bet * 2
+                        bet.bet
                     } else {
                         -bet.bet
                     }
                     "0" -> if (roll == 37) {
-                        bet.bet * 36
+                        bet.bet * 35
                     } else {
                         -bet.bet
                     }
                     "00" -> if (roll == 38) {
-                        bet.bet * 36
+                        bet.bet * 35
                     } else {
                         -bet.bet
                     }
                     else -> if (bet.name == roll.toString()) {
-                        bet.bet * 36
+                        bet.bet * 35
                     } else {
                         -bet.bet
                     }

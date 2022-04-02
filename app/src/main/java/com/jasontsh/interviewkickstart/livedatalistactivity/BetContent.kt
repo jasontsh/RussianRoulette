@@ -31,7 +31,7 @@ object BetContent {
         return Bet(position.toString())
     }
 
-    data class Bet(val name: String, var bet: Int = 0) {
+    data class Bet(val name: String, val bet: Int = 0) {
         override fun toString(): String = name
     }
 }

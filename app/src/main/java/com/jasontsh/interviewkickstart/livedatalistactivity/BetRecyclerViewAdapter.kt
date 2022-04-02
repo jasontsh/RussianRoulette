@@ -16,7 +16,8 @@ import com.jasontsh.interviewkickstart.livedatalistactivity.databinding.Fragment
  * [RecyclerView.Adapter] that can display a [Bet].
  */
 class BetRecyclerViewAdapter(
-    private val values: MutableLiveData<ImmutableList<Bet>>
+    var values: ImmutableList<Bet>,
+    private val callback: BetListCallback
 ) : RecyclerView.Adapter<BetRecyclerViewAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -31,25 +32,12 @@ class BetRecyclerViewAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = checkNotNull(values.value)[position]
+        val item = values[position]
         holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                holder.addBet.isClickable = true
-                item.bet = 1
-                values.value = ImmutableList.copyOf(checkNotNull(values.value))
-            } else {
-                holder.addBet.isClickable = false
-                item.bet = 0
-                values.value = ImmutableList.copyOf(checkNotNull(values.value))
-            }
-            holder.totalBet.text = item.bet.toString()
+            callback.onCheckChanged(position, isChecked)
         }
         holder.addBet.setOnClickListener {
-            if (holder.checkBox.isChecked) {
-                item.bet++
-                values.value = ImmutableList.copyOf(checkNotNull(values.value))
-                holder.totalBet.text = item.bet.toString()
-            }
+            callback.onAddBet(position)
         }
         holder.checkBox.text = item.name
         holder.totalBet.text = item.bet.toString()
@@ -57,7 +45,7 @@ class BetRecyclerViewAdapter(
         holder.addBet.isClickable = holder.checkBox.isChecked
     }
 
-    override fun getItemCount(): Int = checkNotNull(values.value).size
+    override fun getItemCount(): Int = values.size
 
     inner class ViewHolder(binding: FragmentBetBinding) : RecyclerView.ViewHolder(binding.root) {
         val checkBox: CheckBox = binding.checkbox
